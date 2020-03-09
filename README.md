@@ -1,5 +1,7 @@
 # web-cat-vscode
 
+**Work in progress, only DOWNLOADING is supported currently!**
+
 Web-CAT Submitter Extension for Visual Studio Code. No need to install Eclipse to submit your CS projects!
 
 ## Features
