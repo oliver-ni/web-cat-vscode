@@ -9,10 +9,6 @@ import { promisify } from "util";
 
 const exec = promisify(execCallback);
 
-function getTargets(jarPath: string) {
-
-}
-
 export async function upload(jarPath: string) {
 
     try {
@@ -110,17 +106,5 @@ export async function upload(jarPath: string) {
     } catch (err) {
         window.showErrorMessage("Error submitting assignment.");
     }
-
-    // const cmd = [
-    //     workspace.getConfiguration("web-cat").get<string>("java-path"),
-    //     "-jar", "webcat-submitter-1.0.5.jar",
-    //     "-t", workspace.getConfiguration("web-cat").get<string>("submit-url"),
-    //     "-u", "username",
-    //     "-p", "password",
-    //     "-a", "assignment",
-    //     "location"
-    // ].join(" ")
-
-    // const result = await exec(`${} -jar webcat-submitter-1.0.5.jar -t`)
 
 }

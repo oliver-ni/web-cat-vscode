@@ -11,7 +11,7 @@ export function activate(context: vscode.ExtensionContext) {
 	});
 
 	let submit = vscode.commands.registerCommand("web-cat.submit", () => {
-		upload(context.asAbsolutePath("src/webcat-submitter-1.0.5.jar"));
+		upload(context.asAbsolutePath("webcat-submitter-1.0.5.jar"));
 	});
 
 	context.subscriptions.push(snarf);
