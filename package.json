@@ -16,14 +16,19 @@
 		"Other"
 	],
 	"activationEvents": [
-		"*"
+		"onCommand:web-cat.snarf",
+		"onCommand:web-cat.submit"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
 		"commands": [
 			{
 				"command": "web-cat.snarf",
-				"title": "Web-CAT: Snarfer Browser"
+				"title": "Web-CAT: Open Snarfer Browser"
+			},
+			{
+				"command": "web-cat.submit",
+				"title": "Web-CAT: Submit Assignment"
 			}
 		],
 		"configuration": {
