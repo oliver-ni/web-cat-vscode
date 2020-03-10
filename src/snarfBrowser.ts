@@ -33,7 +33,14 @@ export async function snarfBrowser() {
             ignoreAttributes: false
         });
 
-        const items = [].concat(...xml.snarf_site.package.map((value: any, idx: number) => ({
+        console.log(xml);
+
+        let packages = xml.snarf_site.package;
+        if (!Array.isArray(packages)) {
+            packages = [packages];
+        }
+
+        const items = [].concat(...packages.map((value: any, idx: number) => ({
             label: value["@_name"],
             description: idx.toString(),
             detail: value.description,
@@ -56,8 +63,9 @@ export async function snarfBrowser() {
             concurrency: 5
         });
 
-    } catch {
+    } catch (error) {
         window.showErrorMessage("Error opening Snarfer Browser");
+        console.error(error);
     }
 
 }
