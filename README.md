@@ -24,8 +24,8 @@ You can configure the following settings in VS Code:
 
 ### 1.0.0
 
-Submitting assignments now works! Press <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>T</kbd> and select **Web-CAT: Submit Assignment**.
+Submitting assignments now works! Press <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>P</kbd> and select **Web-CAT: Submit Assignment**.
 
 ### 0.0.1
 
-Extension in development. You are able to download files by pressing <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>T</kbd> and selecting **Web-CAT: Snarfer Browser**.
+Extension in development. You are able to download files by pressing <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>P</kbd> and selecting **Web-CAT: Snarfer Browser**.
