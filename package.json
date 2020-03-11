@@ -2,7 +2,7 @@
 	"name": "web-cat-vscode",
 	"displayName": "Web-CAT Submitter",
 	"description": "Submit assignments to the Web-CAT online grader without using Eclipse!",
-	"version": "1.0.2",
+	"version": "1.0.3",
 	"publisher": "oliver-ni",
 	"repository": {
 		"type": "git",
