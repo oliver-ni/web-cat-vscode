@@ -37,16 +37,14 @@
 				"web-cat.java-path": {
 					"type": "string",
 					"default": "java",
-					"description": "Path to java executable."
+					"description": "Command for java (or path to java executable)."
 				},
 				"web-cat.snarf-url": {
 					"type": "string",
-					"default": "http://205.173.41.10/pythonsnarf/snarf.xml",
 					"description": "URL for snarfer.\nLHS IntroCS: http://205.173.41.10/pythonsnarf/snarf.xml\nLHS APCS: http://205.173.41.10/javasnarf/snarf.xml"
 				},
 				"web-cat.submit-url": {
 					"type": "string",
-					"default": "http://205.173.41.10/Web-CAT/WebObjects/Web-CAT.woa/wa/assignments/eclipse",
 					"description": "URL to submit to.\nLHS: http://205.173.41.10/Web-CAT/WebObjects/Web-CAT.woa/wa/assignments/eclipse"
 				}
 			}
