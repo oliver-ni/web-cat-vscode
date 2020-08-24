@@ -2,7 +2,7 @@
 	"name": "web-cat-vscode",
 	"displayName": "Web-CAT Submitter",
 	"description": "Submit assignments to the Web-CAT online grader without using Eclipse!",
-	"version": "1.0.3",
+	"version": "1.0.4",
 	"publisher": "oliver-ni",
 	"repository": {
 		"type": "git",
@@ -41,7 +41,7 @@
 				},
 				"web-cat.snarf-url": {
 					"type": "string",
-					"description": "URL for snarfer.\nLHS IntroCS: http://205.173.41.10/pythonsnarf/snarf.xml\nLHS APCS: http://205.173.41.10/javasnarf/snarf.xml"
+					"description": "URL for snarfer.\nLHS IntroCS Python: http://205.173.41.10/pythonsnarf/snarf.xml\nLHS IntroCS Java: http://205.173.41.10/javasnarf/snarf.xml\nLHS APCS: http://205.173.41.10/apcssnarf/snarf.xml"
 				},
 				"web-cat.submit-url": {
 					"type": "string",
