@@ -81,7 +81,7 @@
     },
     "dependencies": {
         "@types/unzipper": "^0.10.2",
-        "axios": "^0.19.2",
+        "axios": "^0.21.1",
         "fast-xml-parser": "^3.16.0",
         "unzipper": "^0.10.10"
     }
