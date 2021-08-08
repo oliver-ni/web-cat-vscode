@@ -9,23 +9,21 @@ export async function upload(jarPath: string) {
     try {
         // Get submission targets
 
-        const javaPath = workspace
-            .getConfiguration("web-cat")
-            .get<string>("java-path");
+        const javaPath = workspace.getConfiguration("web-CAT").get<string>("java-path");
 
         if (javaPath === undefined || javaPath === "") {
             return window.showInformationMessage(
-                "Please set web-cat.java-path in settings."
+                "Please set web-CAT.javaPath in settings."
             );
         }
 
         const submitUrl = workspace
-            .getConfiguration("web-cat")
-            .get<string>("submit-url");
+            .getConfiguration("web-CAT")
+            .get<string>("submitUrl");
 
         if (submitUrl === undefined || submitUrl === "") {
             return window.showInformationMessage(
-                "Please set web-cat.submit-url in settings."
+                "Please set web-CAT.submitUrl in settings."
             );
         }
 
@@ -40,9 +38,7 @@ export async function upload(jarPath: string) {
 
         const targets = await exec(getTargetCmd.join(" "));
 
-        const target = await window.showQuickPick(
-            targets.stdout.trim().split("\n")
-        );
+        const target = await window.showQuickPick(targets.stdout.trim().split("\n"));
 
         if (target === undefined) {
             return window.showInformationMessage("Operation canceled.");
@@ -66,9 +62,7 @@ export async function upload(jarPath: string) {
 
         // Get username
 
-        let username = workspace
-            .getConfiguration("web-cat")
-            .get<string>("webcat-username");
+        let username = workspace.getConfiguration("web-CAT").get<string>("username");
 
         if (username === undefined || username === "") {
             username = await window.showInputBox({
@@ -83,9 +77,7 @@ export async function upload(jarPath: string) {
 
         // Get password
 
-        let password = workspace
-            .getConfiguration("web-cat")
-            .get<string>("webcat-password");
+        let password = workspace.getConfiguration("web-CAT").get<string>("password");
 
         if (password === undefined || password === "") {
             password = await window.showInputBox({
