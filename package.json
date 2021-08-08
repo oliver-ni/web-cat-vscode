@@ -1,130 +1,130 @@
 {
-    "name": "web-cat-vscode",
-    "displayName": "Web-CAT Submitter",
-    "description": "Submit assignments to the Web-CAT online grader without using Eclipse!",
-    "version": "1.0.5",
-    "publisher": "oliver-ni",
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/oliver-ni/web-cat-vscode.git"
-    },
-    "icon": "assets/wc-logo.png",
-    "engines": {
-        "vscode": "^1.42.0"
-    },
-    "categories": [
-        "Other"
-    ],
-    "activationEvents": [
-        "onCommand:web-CAT.snarf",
-        "onCommand:web-CAT.submit",
-        "onCommand:web-CAT.snarfItem",
-        "onView:web-CAT"
-    ],
-    "main": "./out/extension.js",
-    "contributes": {
-        "views": {
-            "explorer": [
-                {
-                    "id": "web-CAT",
-                    "name": "Snarfer Browser",
-                    "icon": "assets/wc-logo.svg"
-                }
-            ]
-        },
-        "menus": {
-            "view/item/context": [
-                {
-                    "command": "web-CAT.snarfItem",
-                    "when": "view == web-CAT && viewItem == project",
-                    "group": "inline"
-                }
-            ],
-            "commandPalette": [
-                {
-                    "command": "web-CAT.snarfItem",
-                    "when": "false"
-                }
-            ]
-        },
-        "viewsWelcome": [
-            {
-                "view": "web-CAT",
-                "contents": "In order to use Web-CAT features, you must first configure a snarfer and submitter endpoint.\n[Configure for LHS Java](command:web-CAT.configLhsJava)\n[Configure for LHS APCS](command:web-CAT.configLhsApcs)\n[Open Settings](command:web-CAT.openConfig)",
-                "when": "config.web-CAT.snarfUrl == '' || config.web-CAT.submitUrl == ''"
-            },
-            {
-                "view": "web-CAT",
-                "contents": "No assignments found. Are you sure you have the right endpoints set?\n[Reset Configuration](command:web-CAT.resetConfig)",
-                "when": "config.web-CAT.snarfUrl != '' && config.web-CAT.submitUrl != '' && web-CAT.snarfsLoaded"
-            }
-        ],
-        "commands": [
-            {
-                "command": "web-CAT.snarf",
-                "title": "Open Snarfer Browser",
-                "category": "Web-CAT"
-            },
-            {
-                "command": "web-CAT.submit",
-                "title": "Submit Assignment",
-                "category": "Web-CAT"
-            },
-            {
-                "command": "web-CAT.snarfItem",
-                "title": "Snarf Item",
-                "category": "Web-CAT",
-                "icon": "$(cloud-download)"
-            }
-        ],
-        "configuration": {
-            "title": "Web-CAT Submitter",
-            "properties": {
-                "web-CAT.javaPath": {
-                    "type": "string",
-                    "default": "java",
-                    "description": "Command for java (or path to java executable)."
-                },
-                "web-CAT.snarfUrl": {
-                    "type": "string",
-                    "description": "URL for snarfer.\nLHS IntroCS Python: http://205.173.41.10/pythonsnarf/snarf.xml\nLHS IntroCS Java: http://205.173.41.10/javasnarf/snarf.xml\nLHS APCS: http://205.173.41.10/apcssnarf/snarf.xml"
-                },
-                "web-CAT.submitUrl": {
-                    "type": "string",
-                    "description": "URL to submit to.\nLHS: http://205.173.41.10/Web-CAT/WebObjects/Web-CAT.woa/wa/assignments/eclipse"
-                },
-                "web-CAT.username": {
-                    "type": "string",
-                    "description": "Username for Web-CAT. (if you want to save it)"
-                },
-                "web-CAT.password": {
-                    "type": "string",
-                    "description": "Password for Web-CAT. (if you want to save it)"
-                }
-            }
+  "name": "web-cat-vscode",
+  "displayName": "Web-CAT Submitter",
+  "description": "Submit assignments to the Web-CAT online grader without using Eclipse!",
+  "version": "1.0.5",
+  "publisher": "oliver-ni",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/oliver-ni/web-cat-vscode.git"
+  },
+  "icon": "assets/wc-logo.png",
+  "engines": {
+    "vscode": "^1.42.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onCommand:web-CAT.snarf",
+    "onCommand:web-CAT.submit",
+    "onCommand:web-CAT.snarfItem",
+    "onView:web-CAT"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "views": {
+      "explorer": [
+        {
+          "id": "web-CAT",
+          "name": "Snarfer Browser",
+          "icon": "assets/wc-logo.svg"
         }
+      ]
     },
-    "scripts": {
-        "vscode:prepublish": "npm run compile",
-        "compile": "tsc -p ./",
-        "watch": "tsc -watch -p ./",
-        "pretest": "npm run compile && npm run lint",
-        "test": "node ./out/test/runTest.js"
+    "menus": {
+      "view/item/context": [
+        {
+          "command": "web-CAT.snarfItem",
+          "when": "view == web-CAT && viewItem == project",
+          "group": "inline"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "web-CAT.snarfItem",
+          "when": "false"
+        }
+      ]
     },
-    "devDependencies": {
-        "@types/glob": "^7.1.1",
-        "@types/mocha": "^7.0.1",
-        "@types/node": "^12.11.7",
-        "@types/vscode": "^1.42.0",
-        "glob": "^7.1.6",
-        "mocha": "^7.0.1",
-        "typescript": "^3.7.5",
-        "vscode-test": "^1.3.0"
-    },
-    "dependencies": {
-        "@types/unzipper": "^0.10.2",
-        "axios": "^0.19.2",
-        "fast-xml-parser": "^3.16.0",
-        "unzipper": "^0.10.10"
+    "viewsWelcome": [
+      {
+        "view": "web-CAT",
+        "contents": "In order to use Web-CAT features, you must first configure a snarfer and submitter endpoint.\n[Configure for LHS Java](command:web-CAT.configLhsJava)\n[Configure for LHS APCS](command:web-CAT.configLhsApcs)\n[Open Settings](command:web-CAT.openConfig)",
+        "when": "config.web-CAT.snarfUrl == '' || config.web-CAT.submitUrl == ''"
+      },
+      {
+        "view": "web-CAT",
+        "contents": "No assignments found. Are you sure you have the right endpoints set?\n[Reset Configuration](command:web-CAT.resetConfig)",
+        "when": "config.web-CAT.snarfUrl != '' && config.web-CAT.submitUrl != '' && web-CAT.snarfsLoaded"
+      }
+    ],
+    "commands": [
+      {
+        "command": "web-CAT.snarf",
+        "title": "Open Snarfer Browser",
+        "category": "Web-CAT"
+      },
+      {
+        "command": "web-CAT.submit",
+        "title": "Submit Assignment",
+        "category": "Web-CAT"
+      },
+      {
+        "command": "web-CAT.snarfItem",
+        "title": "Snarf Item",
+        "category": "Web-CAT",
+        "icon": "$(cloud-download)"
+      }
+    ],
+    "configuration": {
+      "title": "Web-CAT Submitter",
+      "properties": {
+        "web-CAT.javaPath": {
+          "type": "string",
+          "default": "java",
+          "description": "Command for java (or path to java executable)."
+        },
+        "web-CAT.snarfUrl": {
+          "type": "string",
+          "description": "URL for snarfer.\nLHS IntroCS Python: http://205.173.41.10/pythonsnarf/snarf.xml\nLHS IntroCS Java: http://205.173.41.10/javasnarf/snarf.xml\nLHS APCS: http://205.173.41.10/apcssnarf/snarf.xml"
+        },
+        "web-CAT.submitUrl": {
+          "type": "string",
+          "description": "URL to submit to.\nLHS: http://205.173.41.10/Web-CAT/WebObjects/Web-CAT.woa/wa/assignments/eclipse"
+        },
+        "web-CAT.username": {
+          "type": "string",
+          "description": "Username for Web-CAT. (if you want to save it)"
+        },
+        "web-CAT.password": {
+          "type": "string",
+          "description": "Password for Web-CAT. (if you want to save it)"
+        }
+      }
     }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "test": "node ./out/test/runTest.js"
+  },
+  "devDependencies": {
+    "@types/glob": "^7.1.1",
+    "@types/mocha": "^7.0.1",
+    "@types/node": "^12.11.7",
+    "@types/vscode": "^1.42.0",
+    "glob": "^7.1.6",
+    "mocha": "^7.0.1",
+    "typescript": "^3.7.5",
+    "vscode-test": "^1.3.0"
+  },
+  "dependencies": {
+    "@types/unzipper": "^0.10.2",
+    "axios": "^0.19.2",
+    "fast-xml-parser": "^3.16.0",
+    "unzipper": "^0.10.10"
+  }
 }
