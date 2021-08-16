@@ -20,6 +20,5 @@ Requires Java to submit to Web-CAT.
 
 You can configure the following settings in VS Code:
 
-* `web-CAT.snarfUrl`: URL to use for Snarfer
-* `web-CAT.submitUrl`: URL to use to submit code
-* `web-CAT.javaPath`: Path to java executable.
+- `web-CAT.snarfURLs`: URLs to use for Snarfer download
+- `web-CAT.submitURLs`: URLs to use for Web-CAT submission

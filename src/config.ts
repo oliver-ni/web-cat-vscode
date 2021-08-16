@@ -1,65 +1,42 @@
 import { commands, workspace } from "vscode";
 
-/**
- * The configuration for the extension.
- */
-type WebCatConfig =
-  | { snarfUrl: string; submitUrl: string }
-  | { snarfUrl: undefined; submitUrl: undefined };
+type WebCatConfig = { snarfURLs?: string[]; submitURLs?: string[] };
 
-/**
- * Retrieves the configuration for Web-CAT.
- * @returns {WebCatConfig} the configuration
- */
-export function getConfig(): WebCatConfig {
-  let snarfUrl = workspace.getConfiguration("web-CAT").get<string>("snarfUrl");
-  let submitUrl = workspace.getConfiguration("web-CAT").get<string>("submitUrl");
+export const getConfig = (): WebCatConfig => {
+  let snarfURLs = workspace.getConfiguration("web-CAT").get<string[]>("snarfURLs");
+  let submitURLs = workspace.getConfiguration("web-CAT").get<string[]>("submitURLs");
 
-  if (snarfUrl === "" || submitUrl === "" || snarfUrl === undefined || submitUrl === undefined) {
-    return { snarfUrl: undefined, submitUrl: undefined };
-  }
+  return { snarfURLs, submitURLs };
+};
 
-  return { snarfUrl, submitUrl };
-}
-
-/**
- * Sets the snarf and submit endpoints to the LHS Java preset.
- */
-export function configLhsJava() {
+export const setSnarfConfigLHS = () => {
   const config = workspace.getConfiguration();
-  config.update("web-CAT.snarfUrl", "http://205.173.41.10/javasnarf/snarf.xml", true);
   config.update(
-    "web-CAT.submitUrl",
-    "http://205.173.41.10/Web-CAT/WebObjects/Web-CAT.woa/wa/assignments/eclipse",
+    "web-CAT.snarfURLs",
+    [
+      "http://205.173.41.10/pythonsnarf/snarf.xml",
+      "http://205.173.41.10/javasnarf/snarf.xml",
+      "http://205.173.41.10/apcssnarf/snarf.xml",
+    ],
     true
   );
-}
+};
 
-/**
- * Sets the snarf and submit endpoints to the LHS APCS preset.
- */
-export function configLhsApcs() {
+export const setSubmitConfigLHS = () => {
   const config = workspace.getConfiguration();
-  config.update("web-CAT.snarfUrl", "http://205.173.41.10/apcssnarf/snarf.xml", true);
   config.update(
-    "web-CAT.submitUrl",
-    "http://205.173.41.10/Web-CAT/WebObjects/Web-CAT.woa/wa/assignments/eclipse",
+    "web-CAT.submitURLs",
+    ["http://205.173.41.10/Web-CAT/WebObjects/Web-CAT.woa/wa/assignments/eclipse"],
     true
   );
-}
+};
 
-/**
- * Resets the snarf and submit endpoints.
- */
-export function resetConfig() {
+export const resetConfig = () => {
   const config = workspace.getConfiguration();
-  config.update("web-CAT.snarfUrl", undefined, true);
-  config.update("web-CAT.submitUrl", undefined, true);
-}
+  config.update("web-CAT.snarfURLs", [], true);
+  config.update("web-CAT.submitURLs", [], true);
+};
 
-/**
- * Opens the configuration section for Web-CAT.
- */
-export function openConfig() {
+export const openConfig = () => {
   commands.executeCommand("workbench.action.openSettings", "web-cat");
-}
+};

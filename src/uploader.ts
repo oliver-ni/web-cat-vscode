@@ -1,107 +1,42 @@
-import { exec as execCallback } from "child_process";
-import { promisify } from "util";
-import { ViewColumn, window, workspace } from "vscode";
+import { window } from "vscode";
+import { getConfig } from "./config";
 
-const exec = promisify(execCallback);
+export const upload = async () => {
+  const { submitURLs } = getConfig();
 
-export async function upload(jarPath: string) {
-  try {
-    // Get submission targets
-
-    const javaPath = workspace.getConfiguration("web-CAT").get<string>("java-path");
-
-    if (javaPath === undefined || javaPath === "") {
-      return window.showInformationMessage("Please set web-CAT.javaPath in settings.");
-    }
-
-    const submitUrl = workspace.getConfiguration("web-CAT").get<string>("submitUrl");
-
-    if (submitUrl === undefined || submitUrl === "") {
-      return window.showInformationMessage("Please set web-CAT.submitUrl in settings.");
-    }
-
-    const getTargetCmd: string[] = [javaPath, "-jar", jarPath, "-t", submitUrl, "-l"];
-
-    const targets = await exec(getTargetCmd.join(" "));
-
-    const target = await window.showQuickPick(targets.stdout.trim().split("\n"));
-
-    if (target === undefined) {
-      return window.showInformationMessage("Operation canceled.");
-    }
-
-    // Select directory
-
-    const dirResult = await window.showOpenDialog({
-      canSelectFiles: false,
-      canSelectFolders: true,
-      canSelectMany: false,
-      defaultUri: workspace.workspaceFolders?.[0].uri,
-      openLabel: "Select Folder",
-    });
-
-    if (dirResult === undefined) {
-      return window.showInformationMessage("Operation canceled.");
-    }
-
-    const dir = dirResult[0].path;
-
-    // Get username
-
-    let username = workspace.getConfiguration("web-CAT").get<string>("username");
-
-    if (username === undefined || username === "") {
-      username = await window.showInputBox({
-        prompt: "Web-CAT Username (you can set this in settings if you want to save)",
-      });
-
-      if (username === undefined || username === "") {
-        return window.showInformationMessage("Operation canceled.");
-      }
-    }
-
-    // Get password
-
-    let password = workspace.getConfiguration("web-CAT").get<string>("password");
-
-    if (password === undefined || password === "") {
-      password = await window.showInputBox({
-        prompt: "Web-CAT Password (you can set this in settings if you want to save)",
-        password: true,
-      });
-
-      if (password === undefined || password === "") {
-        return window.showInformationMessage("Operation canceled.");
-      }
-    }
-
-    // Upload
-
-    const submitCmd: string[] = [
-      javaPath,
-      "-jar",
-      jarPath,
-      "-t",
-      submitUrl,
-      "-u",
-      '"' + username + '"',
-      "-p",
-      '"' + password + '"',
-      "-a",
-      '"' + target + '"',
-      '"' + dir + '"',
-    ];
-
-    const result = await exec(submitCmd.join(" "));
-
-    const panel = window.createWebviewPanel(
-      "submission-result",
-      "Web-CAT Submission Results",
-      ViewColumn.Two
-    );
-
-    panel.webview.html = result.stdout;
-  } catch (err) {
-    window.showErrorMessage("Error submitting assignment.");
+  if (!submitURLs) {
+    return window.showErrorMessage("Please set web-CAT.submitURLs in settings.");
   }
-}
+
+  //   // Select folder
+
+  //   const dirResult = await window.showOpenDialog({
+  //     canSelectFiles: false,
+  //     canSelectFolders: true,
+  //     canSelectMany: false,
+  //     defaultUri: workspace.workspaceFolders?.[0].uri,
+  //     openLabel: "Select Folder",
+  //   });
+  //   if (!dirResult) return window.showInformationMessage("Operation canceled.");
+  //   const dir = dirResult[0].path;
+
+  //   // Enter credentials
+
+  //   const username = await window.showInputBox({ prompt: "Web-CAT Username" });
+  //   if (!username) return window.showInformationMessage("Operation canceled.");
+  //   const password = await window.showInputBox({ prompt: "Web-CAT Password", password: true });
+  //   if (!password) return window.showInformationMessage("Operation canceled.");
+
+  //   // Make zip file
+
+  //   const output = new streamBuffers.WritableStreamBuffer();
+
+  //   const archive = archiver("zip");
+  //   archive.pipe(output);
+  //   archive.directory(dir, false);
+  //   await archive.finalize();
+
+  //   // console.log(dir, username, password);
+
+  window.showInformationMessage("Submitted");
+};

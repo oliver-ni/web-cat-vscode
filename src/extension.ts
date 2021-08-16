@@ -1,40 +1,31 @@
 import { commands, ExtensionContext, window, workspace } from "vscode";
-import { configLhsApcs, configLhsJava, openConfig, resetConfig } from "./config";
+import { openConfig, resetConfig, setSnarfConfigLHS, setSubmitConfigLHS } from "./config";
 import { SnarfDataProvider, snarfItem } from "./snarfBrowser";
+import { upload } from "./uploader";
 
-export function activate(context: ExtensionContext) {
+export const activate = (context: ExtensionContext) => {
   console.log("Web-CAT Submitter extension activating...");
 
-  const treeDataProvider = new SnarfDataProvider();
-  window.createTreeView("web-CAT", { treeDataProvider });
+  const snarfDataProvider = new SnarfDataProvider();
+  window.createTreeView("snarferBrowser", { treeDataProvider: snarfDataProvider });
 
   workspace.onDidChangeConfiguration(async (event) => {
-    if (
-      event.affectsConfiguration("web-CAT.snarfUrl") ||
-      event.affectsConfiguration("web-CAT.submitUrl")
-    ) {
-      await treeDataProvider.refresh();
+    if (event.affectsConfiguration("web-CAT.snarfURLs")) {
+      await snarfDataProvider.refresh();
     }
   });
 
-  const showDialog = () => {
-    window.showInformationMessage(
-      "This command has been removed. Please use the new Web-CAT panel located in the left sidebar."
-    );
-  };
-
   context.subscriptions.push(
-    commands.registerCommand("web-CAT.configLhsJava", configLhsJava),
-    commands.registerCommand("web-CAT.configLhsApcs", configLhsApcs),
+    commands.registerCommand("web-CAT.setSnarfConfigLHS", setSnarfConfigLHS),
+    commands.registerCommand("web-CAT.setSubmitConfigLHS", setSubmitConfigLHS),
     commands.registerCommand("web-CAT.openConfig", openConfig),
     commands.registerCommand("web-CAT.resetConfig", resetConfig),
     commands.registerCommand("web-CAT.snarfItem", snarfItem),
 
-    commands.registerCommand("web-CAT.snarf", showDialog),
-    commands.registerCommand("web-CAT.submit", showDialog)
+    commands.registerCommand("web-CAT.submit", upload)
   );
-}
+};
 
-export function deactivate() {
+export const deactivate = () => {
   console.log("Web-CAT Submitter extension deactivating...");
-}
+};

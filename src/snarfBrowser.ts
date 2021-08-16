@@ -1,168 +1,100 @@
-import axios from "axios";
 import * as parser from "fast-xml-parser";
+import * as fs from "fs";
+import fetch from "node-fetch";
 import * as path from "path";
 import * as unzip from "unzipper";
-import {
-  commands,
-  Event,
-  EventEmitter,
-  ThemeIcon,
-  TreeDataProvider,
-  TreeItem,
-  TreeItemCollapsibleState,
-  window,
-  workspace,
-} from "vscode";
+import { window, workspace } from "vscode";
 import { getConfig } from "./config";
+import { AsyncItem, AsyncTreeDataProvider } from "./tree";
 
-type TreeData = SnarfItem | undefined | void;
-
-type SnarfItemOptions = {
-  label: string;
-  tooltip?: string;
-  description?: string;
-  url?: string;
-  iconId?: string;
-  children?: SnarfItem[];
+type SnarfSitePackageItem = {
+  "@_category": string;
+  "@_name": string;
+  "@_version": string;
+  description: string;
+  entry: { "@_url": string };
 };
 
-/**
- * Provides the data to the snarfer browser tree view from the snarf site.
- */
-export class SnarfDataProvider implements TreeDataProvider<SnarfItem> {
-  private _onDidChangeTreeData: EventEmitter<TreeData> = new EventEmitter<TreeData>();
-  private data?: SnarfItem[];
-  private ready = false;
-
-  readonly onDidChangeTreeData: Event<TreeData> = this._onDidChangeTreeData.event;
-
-  getTreeItem(element: SnarfItem) {
-    return element;
+export class SnarfDataProvider extends AsyncTreeDataProvider {
+  private makeItem(x: SnarfSitePackageItem): { category: string; item: AsyncItem } {
+    const item = new AsyncItem({
+      label: x["@_name"],
+      tooltip: x.description,
+      description: x["@_version"],
+      iconId: "symbol-package",
+      url: x.entry["@_url"],
+    });
+    return { category: x["@_category"], item };
   }
 
-  async getChildren(element?: SnarfItem) {
-    if (element === undefined) {
-      if (!this.ready) {
-        await this.fetchData();
-      }
-      return this.data;
-    }
-    return element.children;
+  private async fetchSite(url: string): Promise<{ label: string; packages: SnarfSitePackageItem[] }> {
+    const resp = await fetch(url);
+    if (!resp.ok) throw new Error(`Failed to fetch ${url}.`);
+
+    const content = await resp.text();
+    const xml = parser.parse(content, { ignoreAttributes: false });
+
+    return {
+      label: xml.snarf_site["@_name"],
+      packages: Array.isArray(xml.snarf_site.package) ? xml.snarf_site.package : [xml.snarf_site.package],
+    };
   }
 
-  private async fetchData() {
-    commands.executeCommand("setContext", "web-CAT.snarfsLoaded", false);
+  async fetchData() {
+    const { snarfURLs } = getConfig();
+    if (!snarfURLs) return;
 
-    const { snarfUrl: url } = getConfig();
+    const sites = await Promise.all(snarfURLs.map(this.fetchSite));
 
-    if (url === undefined) {
-      this.data = undefined;
-    } else {
-      const resp = await axios.get(url);
-      const xml = parser.parse(resp.data, { ignoreAttributes: false });
+    return sites.map(({ label, packages }) => {
+      const items = packages.map(this.makeItem).reduce<{ [key: string]: AsyncItem[] }>((acc, { category, item }) => {
+        if (!acc.hasOwnProperty(category)) acc[category] = [];
+        acc[category].push(item);
+        return acc;
+      }, {});
 
-      const packages: any[] = Array.isArray(xml.snarf_site.package)
-        ? xml.snarf_site.package
-        : [xml.snarf_site.package];
-
-      const categories = packages.reduce<Map<string, SnarfItem[]>>((obj, x) => {
-        const item = new SnarfItem({
-          label: x["@_name"],
-          tooltip: x.description,
-          description: x["@_version"],
-          iconId: "symbol-package",
-          url: x.entry["@_url"],
+      const children = Object.entries(items).map(([label, children]) => {
+        return new AsyncItem({
+          label,
+          iconId: "folder",
+          children: children.sort((a, b) => a.label.localeCompare(b.label)),
         });
+      });
 
-        const arr = obj.get(x["@_category"]);
-        if (arr === undefined) obj.set(x["@_category"], [item]);
-        else arr.push(item);
-        return obj;
-      }, new Map());
+      return new AsyncItem({ label, iconId: "project", children });
+    });
+  }
+}
 
-      this.data = [
-        new SnarfItem({
-          label: xml.snarf_site["@_name"],
-          iconId: "project",
-          children: [...categories.entries()].map(
-            ([label, children]) =>
-              new SnarfItem({
-                label,
-                iconId: "folder",
-                children: children.sort((a, b) => a.label.localeCompare(b.label)),
-              })
-          ),
-        }),
-      ];
+export const snarfItem = (item: AsyncItem) => {
+  const dir = workspace.workspaceFolders?.[0].uri.fsPath;
+  if (!dir) return window.showInformationMessage("Please open a folder first.");
+
+  const downloadItem = async () => {
+    if (!item.url) return;
+
+    const resp = await fetch(item.url);
+    const zipfile = await resp.buffer();
+    const zip = await unzip.Open.buffer(zipfile);
+
+    const unzipPath = path.join(dir, item.label);
+
+    if (fs.existsSync(unzipPath)) {
+      const ans = await window.showInformationMessage("Directory already exists. Overwrite?", "Yes", "No");
+      if (ans !== "Yes") return;
     }
 
-    commands.executeCommand("setContext", "web-CAT.snarfsLoaded", true);
-  }
+    await zip.extract({ path: unzipPath, concurrency: 5 });
+    window.showInformationMessage(`Succesfully snarfed ${item.label}.`);
+  };
 
-  /**
-   * Refreshes the tree view data.
-   */
-  async refresh() {
-    this.ready = false;
-    this._onDidChangeTreeData.fire();
-  }
-}
+  window.withProgress({ location: { viewId: "snarferBrowser" }, title: "Snarfing..." }, () =>
+    Promise.all([delay(1000), downloadItem()])
+  );
+};
 
-class SnarfItem extends TreeItem {
-  label: string;
-  url?: string;
-  children?: SnarfItem[];
-
-  constructor({ label, tooltip, description, url, iconId, children }: SnarfItemOptions) {
-    super(
-      label,
-      children === undefined ? TreeItemCollapsibleState.None : TreeItemCollapsibleState.Expanded
-    );
-
-    this.label = label;
-    this.tooltip = tooltip;
-    this.description = description;
-    this.children = children;
-    this.url = url;
-
-    if (iconId !== undefined) this.iconPath = new ThemeIcon(iconId);
-    if (url !== undefined) this.contextValue = "project";
-  }
-}
-
-function delay(time: number) {
+const delay = (time: number) => {
   return new Promise((resolve) => {
     setTimeout(resolve, time);
   });
-}
-
-/**
- * Snarfs an item to the currently open directory.
- * @param item the item to snarf.
- * @returns {void}
- */
-export function snarfItem(item: SnarfItem) {
-  const dir = workspace.workspaceFolders?.[0].uri.fsPath;
-
-  if (dir === undefined) {
-    window.showInformationMessage("Please open a folder first.");
-    return;
-  }
-
-  const downloadItem = async () => {
-    if (item.url === undefined) return;
-
-    const zipfile = await axios.get(item.url, { responseType: "arraybuffer" });
-    const zip = await unzip.Open.buffer(zipfile.data);
-
-    zip.extract({
-      path: path.join(dir, item.label),
-      concurrency: 5,
-    });
-  };
-
-  window.withProgress({ location: { viewId: "web-CAT" }, title: "Snarfing..." }, async () => {
-    await Promise.all([delay(1000), downloadItem()]);
-    window.showInformationMessage(`Succesfully snarfed ${item.label}.`);
-  });
-}
+};
