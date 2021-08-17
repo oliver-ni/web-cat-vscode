@@ -1,4 +1,4 @@
-import { commands, EventEmitter, ThemeIcon, TreeDataProvider, TreeItem, TreeItemCollapsibleState } from "vscode";
+import { EventEmitter, ThemeIcon, TreeDataProvider, TreeItem, TreeItemCollapsibleState, window } from "vscode";
 
 type TreeData = AsyncItem | undefined | void;
 
@@ -6,16 +6,17 @@ type AsyncItemOptions = {
   label: string;
   tooltip?: string;
   description?: string;
-  url?: string;
+  item?: any;
   iconId?: string;
+  contextValue?: string;
   children?: AsyncItem[];
 };
 
 export abstract class AsyncTreeDataProvider implements TreeDataProvider<AsyncItem> {
-  private _onDidChangeTreeData = new EventEmitter<TreeData>();
   private data?: AsyncItem[];
   private ready = false;
 
+  private _onDidChangeTreeData = new EventEmitter<TreeData>();
   readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
 
   getTreeItem(element: AsyncItem) {
@@ -26,17 +27,27 @@ export abstract class AsyncTreeDataProvider implements TreeDataProvider<AsyncIte
     if (element) return element.children;
 
     if (!this.ready) {
-      commands.executeCommand("setContext", "web-CAT.snarfsLoaded", false);
-      this.data = await this.fetchData();
-      commands.executeCommand("setContext", "web-CAT.snarfsLoaded", true);
+      this.beforeLoad();
+      try {
+        this.data = await this.fetchData();
+      } catch (e) {
+        this.onLoadError(e);
+        return;
+      }
+      this.afterLoad();
     }
 
     return this.data;
   }
 
   abstract fetchData(): Promise<AsyncItem[] | undefined>;
+  beforeLoad() {}
+  afterLoad() {}
+  onLoadError(e: Error) {
+    window.showErrorMessage(e.message);
+  }
 
-  async refresh() {
+  refresh() {
     this.ready = false;
     this._onDidChangeTreeData.fire();
   }
@@ -44,19 +55,20 @@ export abstract class AsyncTreeDataProvider implements TreeDataProvider<AsyncIte
 
 export class AsyncItem extends TreeItem {
   label: string;
-  url?: string;
+  item?: any;
   children?: AsyncItem[];
 
-  constructor({ label, tooltip, description, url, iconId, children }: AsyncItemOptions) {
+  constructor({ label, tooltip, description, item, iconId, contextValue, children }: AsyncItemOptions) {
     super(label, children ? TreeItemCollapsibleState.Expanded : TreeItemCollapsibleState.None);
 
     this.label = label;
     this.tooltip = tooltip;
     this.description = description;
     this.children = children;
-    this.url = url;
+    this.contextValue;
+    this.item = item;
+    this.contextValue = contextValue;
 
     if (iconId) this.iconPath = new ThemeIcon(iconId);
-    if (url) this.contextValue = "project";
   }
 }

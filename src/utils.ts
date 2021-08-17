@@ -40,3 +40,9 @@ export const resetConfig = () => {
 export const openConfig = () => {
   commands.executeCommand("workbench.action.openSettings", "web-cat");
 };
+
+export const delay = (time: number) => {
+  return new Promise((resolve) => {
+    setTimeout(resolve, time);
+  });
+};

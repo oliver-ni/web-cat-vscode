@@ -1,18 +1,18 @@
 import { commands, ExtensionContext, window, workspace } from "vscode";
-import { openConfig, resetConfig, setSnarfConfigLHS, setSubmitConfigLHS } from "./config";
 import { SnarfDataProvider, snarfItem } from "./snarfBrowser";
-import { upload } from "./uploader";
+import { UploadDataProvider, uploadItem } from "./uploadBrowser";
+import { openConfig, resetConfig, setSnarfConfigLHS, setSubmitConfigLHS } from "./utils";
 
 export const activate = (context: ExtensionContext) => {
-  console.log("Web-CAT Submitter extension activating...");
-
   const snarfDataProvider = new SnarfDataProvider();
   window.createTreeView("snarferBrowser", { treeDataProvider: snarfDataProvider });
 
-  workspace.onDidChangeConfiguration(async (event) => {
-    if (event.affectsConfiguration("web-CAT.snarfURLs")) {
-      await snarfDataProvider.refresh();
-    }
+  const uploadDataProvider = new UploadDataProvider();
+  window.createTreeView("uploadBrowser", { treeDataProvider: uploadDataProvider });
+
+  workspace.onDidChangeConfiguration(async ({ affectsConfiguration }) => {
+    if (affectsConfiguration("web-CAT.snarfURLs")) await snarfDataProvider.refresh();
+    if (affectsConfiguration("web-CAT.submitURLs")) await uploadDataProvider.refresh();
   });
 
   context.subscriptions.push(
@@ -20,12 +20,9 @@ export const activate = (context: ExtensionContext) => {
     commands.registerCommand("web-CAT.setSubmitConfigLHS", setSubmitConfigLHS),
     commands.registerCommand("web-CAT.openConfig", openConfig),
     commands.registerCommand("web-CAT.resetConfig", resetConfig),
+    commands.registerCommand("web-CAT.refreshSnarferBrowser", () => snarfDataProvider.refresh()),
     commands.registerCommand("web-CAT.snarfItem", snarfItem),
-
-    commands.registerCommand("web-CAT.submit", upload)
+    commands.registerCommand("web-CAT.refreshUploadBrowser", () => uploadDataProvider.refresh()),
+    commands.registerCommand("web-CAT.uploadItem", (item) => uploadItem(item, context))
   );
-};
-
-export const deactivate = () => {
-  console.log("Web-CAT Submitter extension deactivating...");
 };
