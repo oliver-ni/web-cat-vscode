@@ -8,8 +8,6 @@ Web-CAT Submitter Extension for Visual Studio Code. No need to install Eclipse t
 
 Able to view Snarfer Browser and download files from Web-CAT, as well as submit files.
 
-Open the command pallete with <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>P</kbd> and type in **Web-CAT** to see all available commands!
-
 The first time you run the extension, you will need to specify the URL to snarf from and submit to in Visual Studio Code Settings.
 
 ## Requirements
