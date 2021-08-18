@@ -37,7 +37,11 @@ export class SnarfDataProvider extends AsyncTreeDataProvider {
 
     return {
       label: xml.snarf_site["@_name"],
-      packages: Array.isArray(xml.snarf_site.package) ? xml.snarf_site.package : [xml.snarf_site.package],
+      packages: Array.isArray(xml.snarf_site.package)
+        ? xml.snarf_site.package
+        : xml.snarf_site.package
+        ? [xml.snarf_site.package]
+        : [],
     };
   }
 
