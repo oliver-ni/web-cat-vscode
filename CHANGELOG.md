@@ -2,6 +2,10 @@
 
 All notable changes to the "web-cat-vscode" extension will be documented in this file.
 
+## [2.0.3] - 2021-08-18
+
+- Fixed bug on Windows
+
 ## [2.0.2] - 2021-08-18
 
 - Fixed bug when no packages available in snarf site

@@ -1,4 +1,4 @@
-import archiver = require("archiver");
+import * as archiver from "archiver";
 import * as parser from "fast-xml-parser";
 import fetch from "node-fetch";
 import { parse as parseHTML } from "node-html-parser";
@@ -129,7 +129,7 @@ export const uploadItem = (item: AsyncItem, context: ExtensionContext) => {
       });
 
       if (!dirResult) return window.showInformationMessage("Operation canceled.");
-      files.push({ param, dir: dirResult[0].path });
+      files.push({ param, dir: dirResult[0].fsPath });
     }
 
     // Enter credentials
