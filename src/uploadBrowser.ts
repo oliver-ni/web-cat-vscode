@@ -156,18 +156,13 @@ export const uploadItem = (item: AsyncItem, context: ExtensionContext) => {
     // Make zip file
 
     for (const { param, dir } of files) {
-      await new Promise<void>((resolve, reject) => {
-        const output = new streamBuffers.WritableStreamBuffer();
-        const archive = archiver("zip");
-        archive.pipe(output);
-        archive.directory(dir, false);
-        output.on("close", () => {
-          body.append(param.name, output.getContents(), {
-            filename: formatVars(param.value),
-          });
-          resolve();
-        });
-        archive.finalize();
+      const output = new streamBuffers.WritableStreamBuffer();
+      const archive = archiver("zip");
+      archive.pipe(output);
+      archive.directory(dir, false);
+      await archive.finalize();
+      body.append(param.name, output.getContents(), {
+        filename: formatVars(param.value),
       });
     }
 
