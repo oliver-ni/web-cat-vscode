@@ -159,7 +159,7 @@ export const uploadItem = (item: AsyncItem, context: ExtensionContext) => {
       const output = new streamBuffers.WritableStreamBuffer();
       const archive = archiver("zip");
       archive.pipe(output);
-      archive.directory(dir, false);
+      archive.glob("**/*", { cwd: dir });
       await archive.finalize();
       body.append(param.name, output.getContents(), {
         filename: formatVars(param.value),
