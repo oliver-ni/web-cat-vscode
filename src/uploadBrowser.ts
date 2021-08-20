@@ -1,4 +1,4 @@
-import archiver = require("archiver");
+import * as archiver from "archiver";
 import * as parser from "fast-xml-parser";
 import fetch from "node-fetch";
 import { parse as parseHTML } from "node-html-parser";
