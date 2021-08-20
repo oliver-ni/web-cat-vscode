@@ -1,7 +1,8 @@
-import * as AdmZip from "adm-zip";
+import * as archiver from "archiver";
 import * as parser from "fast-xml-parser";
 import fetch from "node-fetch";
 import { parse as parseHTML } from "node-html-parser";
+import * as streamBuffers from "stream-buffers";
 import { commands, ExtensionContext, InputBoxOptions, ViewColumn, window, workspace } from "vscode";
 import { AsyncItem, AsyncTreeDataProvider } from "./asyncTree";
 import { delay, getConfig } from "./utils";
@@ -155,9 +156,12 @@ export const uploadItem = (item: AsyncItem, context: ExtensionContext) => {
     // Make zip file
 
     for (const { param, dir } of files) {
-      const zip = new AdmZip();
-      zip.addLocalFolder(dir);
-      body.append(param.name, zip.toBuffer(), {
+      const output = new streamBuffers.WritableStreamBuffer();
+      const archive = archiver("zip");
+      archive.pipe(output);
+      archive.glob("**/*", { cwd: dir });
+      await archive.finalize();
+      body.append(param.name, output.getContents(), {
         filename: formatVars(param.value),
       });
     }
