@@ -2,6 +2,10 @@
 
 All notable changes to the "web-cat-vscode" extension will be documented in this file.
 
+## [2.1.0] - 2021-08-25
+
+- Added automatically importing newly snarfed projects
+
 ## [2.0.3] - 2021-08-18
 
 - Fixed bug on Windows

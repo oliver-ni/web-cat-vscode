@@ -105,6 +105,7 @@ export const snarfItem = (item: AsyncItem) => {
     }
 
     await zip.extract({ path: unzipPath, concurrency: 5 });
+    await commands.executeCommand("java.project.import");
     window.showInformationMessage(`Succesfully snarfed ${pack["@_name"]}.`);
   };
 
