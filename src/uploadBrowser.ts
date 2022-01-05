@@ -1,8 +1,11 @@
 import * as archiver from "archiver";
 import * as parser from "fast-xml-parser";
+import * as glob from "glob";
 import fetch from "node-fetch";
 import { parse as parseHTML } from "node-html-parser";
+import * as path from "path";
 import * as streamBuffers from "stream-buffers";
+import { promisify } from "util";
 import { commands, ExtensionContext, InputBoxOptions, ViewColumn, window, workspace } from "vscode";
 import { AsyncItem, AsyncTreeDataProvider } from "./asyncTree";
 import { delay, getConfig } from "./utils";
@@ -10,9 +13,10 @@ import FormData = require("form-data");
 
 type TransportParam = { name: string; value: string };
 type Transport = { uri: string; params: TransportParam[]; fileParams: TransportParam[] };
-type Assignment = { name: string; transport: Transport };
+type Exclude = { pattern: string };
+type Assignment = { name: string; excludes: Exclude[]; transport: Transport };
 type AssignmentGroup = { name: string; assignments: Assignment[] };
-type SubmissionRoot = { groups: AssignmentGroup[] };
+type SubmissionRoot = { excludes: Exclude[]; groups: AssignmentGroup[] };
 
 const parseTransportParam = (value: any): TransportParam => {
   return {
@@ -29,9 +33,14 @@ const parseTransport = (value: any): Transport => {
   };
 };
 
+const parseExclude = (value: any): Exclude => {
+  return { pattern: value["@_pattern"] };
+};
+
 const parseAssignment = (value: any): Assignment => {
   return {
     name: value["@_name"],
+    excludes: value["exclude"]?.map(parseExclude) ?? [],
     transport: parseTransport(value["transport"][0]),
   };
 };
@@ -45,6 +54,7 @@ const parseAssignmentGroup = (value: any): AssignmentGroup => {
 
 const parseSubmissionRoot = (value: any): SubmissionRoot => {
   return {
+    excludes: value["submission-targets"][0]["exclude"].map(parseExclude),
     groups: value["submission-targets"][0]["assignment-group"].map(parseAssignmentGroup),
   };
 };
@@ -75,7 +85,7 @@ export class UploadDataProvider extends AsyncTreeDataProvider {
                   label: assignment.name,
                   iconId: "package",
                   contextValue: "project",
-                  item: assignment,
+                  item: { ...assignment, excludes: [...root.excludes, ...assignment.excludes] },
                 })
             ),
           })
@@ -159,7 +169,12 @@ export const uploadItem = (item: AsyncItem, context: ExtensionContext) => {
       const output = new streamBuffers.WritableStreamBuffer();
       const archive = archiver("zip");
       archive.pipe(output);
-      archive.directory(dir, false);
+
+      const paths = await promisify(glob)("**/*", { cwd: dir, ignore: assignment.excludes.map((x) => x.pattern) });
+      for (const file of paths) {
+        archive.file(path.join(dir, file), { name: file });
+      }
+
       await archive.finalize();
       body.append(param.name, output.getContents(), {
         filename: formatVars(param.value),
