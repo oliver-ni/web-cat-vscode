@@ -31,6 +31,7 @@ export abstract class AsyncTreeDataProvider implements TreeDataProvider<AsyncIte
       try {
         this.data = await this.fetchData();
       } catch (e) {
+        // @ts-ignore
         this.onLoadError(e);
         return;
       }

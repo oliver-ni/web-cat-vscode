@@ -114,6 +114,7 @@ export const snarfItem = (item: AsyncItem) => {
       Promise.all([delay(1000), downloadItem()])
     );
   } catch (err) {
+    // @ts-ignore
     window.showInformationMessage(`An error occurred: ${err?.message}`);
     console.error(err);
   }

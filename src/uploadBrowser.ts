@@ -217,6 +217,7 @@ export const uploadItem = (item: AsyncItem, context: ExtensionContext) => {
       Promise.all([delay(1000), action()])
     );
   } catch (err) {
+    // @ts-ignore
     window.showInformationMessage(`An error occurred: ${err?.message}`);
     console.error(err);
   }
