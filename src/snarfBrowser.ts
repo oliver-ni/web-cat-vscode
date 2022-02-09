@@ -3,7 +3,7 @@ import * as fs from "fs";
 import fetch from "node-fetch";
 import * as path from "path";
 import * as unzip from "unzipper";
-import { commands, window, workspace } from "vscode";
+import { commands, Uri, window, workspace } from "vscode";
 import { AsyncItem, AsyncTreeDataProvider } from "./asyncTree";
 import { delay, getConfig } from "./utils";
 
@@ -105,8 +105,16 @@ export const snarfItem = (item: AsyncItem) => {
     }
 
     await zip.extract({ path: unzipPath, concurrency: 5 });
-    await commands.executeCommand("java.project.import");
-    window.showInformationMessage(`Succesfully snarfed ${pack["@_name"]}.`);
+
+    try {
+      await commands.executeCommand("java.project.import");
+    } catch (e) {}
+
+    const selection = await window.showInformationMessage(`Succesfully snarfed ${pack["@_name"]}.`, "Open Folder");
+
+    if (selection === "Open Folder") {
+      await commands.executeCommand("vscode.openFolder", Uri.file(unzipPath));
+    }
   };
 
   try {
