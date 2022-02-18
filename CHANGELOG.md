@@ -2,6 +2,10 @@
 
 All notable changes to the "web-cat-vscode" extension will be documented in this file.
 
+## [2.3.1] - 2022-02-18
+
+- Fixed bug where `.gdoc` files would interfere with submission
+
 ## [2.3.0] - 2022-02-09
 
 - Fixed bug where successful snarf indicator was sometimes not shown
