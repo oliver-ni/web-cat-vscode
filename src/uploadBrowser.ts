@@ -170,10 +170,30 @@ export const uploadItem = (item: AsyncItem, context: ExtensionContext) => {
       const archive = archiver("zip");
       archive.pipe(output);
 
-      const paths = await promisify(glob)("**/*", { cwd: dir, ignore: assignment.excludes.map((x) => x.pattern) });
+      const paths = await promisify(glob)("**/*", {
+        cwd: dir,
+        ignore: [
+          ...assignment.excludes.map((x) => x.pattern),
+          "*.gdoc",
+          "*.gslides",
+          "*.gsheet",
+          "*.gdraw",
+          "*.gtable",
+          "*.gform",
+        ],
+      });
+
       for (const file of paths) {
         archive.file(path.join(dir, file), { name: file });
       }
+
+      archive.on("warning", (err) => {
+        window.showWarningMessage(`An warning occurred: ${err?.message}`);
+      });
+
+      archive.on("error", (err) => {
+        window.showErrorMessage(`An error occurred: ${err?.message}`);
+      });
 
       await archive.finalize();
       body.append(param.name, output.getContents(), {
@@ -233,7 +253,7 @@ export const uploadItem = (item: AsyncItem, context: ExtensionContext) => {
     );
   } catch (err) {
     // @ts-ignore
-    window.showInformationMessage(`An error occurred: ${err?.message}`);
+    window.showErrorMessage(`An error occurred: ${err?.message}`);
     console.error(err);
   }
 };

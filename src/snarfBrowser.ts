@@ -123,7 +123,7 @@ export const snarfItem = (item: AsyncItem) => {
     );
   } catch (err) {
     // @ts-ignore
-    window.showInformationMessage(`An error occurred: ${err?.message}`);
+    window.showErrorMessage(`An error occurred: ${err?.message}`);
     console.error(err);
   }
 };
