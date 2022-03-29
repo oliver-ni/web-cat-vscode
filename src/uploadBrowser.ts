@@ -18,6 +18,13 @@ type Assignment = { name: string; excludes: Exclude[]; transport: Transport };
 type AssignmentGroup = { name: string; assignments: Assignment[] };
 type SubmissionRoot = { excludes: Exclude[]; groups: AssignmentGroup[] };
 
+type AssignmentItem = {
+  assignment: Assignment;
+  group: AssignmentGroup;
+  root: SubmissionRoot;
+  provider: UploadDataProvider;
+};
+
 const parseTransportParam = (value: any): TransportParam => {
   return {
     name: value["@_name"],
@@ -85,7 +92,12 @@ export class UploadDataProvider extends AsyncTreeDataProvider {
                   label: assignment.name,
                   iconId: "package",
                   contextValue: "project",
-                  item: { ...assignment, excludes: [...root.excludes, ...assignment.excludes] },
+                  item: {
+                    assignment: { ...assignment, excludes: [...root.excludes, ...assignment.excludes] },
+                    group,
+                    root,
+                    provider: this,
+                  },
                 })
             ),
           })
@@ -116,9 +128,17 @@ const PROMPT_ON: { [key: string]: InputBoxOptions } = {
 };
 
 export const uploadItem = (item: AsyncItem, context: ExtensionContext) => {
-  const assignment = <Assignment>item.item;
+  const { assignment: _assignment, group: _group, provider } = <AssignmentItem>item.item;
 
   const action = async () => {
+    // Attempt to re-fetch assignment
+
+    const groups = await provider.fetchData();
+    const group = groups?.find((x) => x.label === _group.name);
+    const { assignment } = <AssignmentItem>(group?.children?.find((x) => x.label === _assignment.name)?.item ?? item);
+
+    // Prepare details
+
     const vars: Map<string, string> = new Map();
     const formatVars = (value: string) => {
       for (const [k, v] of vars.entries()) {
@@ -131,6 +151,7 @@ export const uploadItem = (item: AsyncItem, context: ExtensionContext) => {
 
     for (const param of assignment.transport.fileParams) {
       const dirResult = await window.showOpenDialog({
+        title: "Select Submission Folder",
         canSelectFiles: false,
         canSelectFolders: true,
         canSelectMany: false,
