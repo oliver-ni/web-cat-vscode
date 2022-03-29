@@ -2,6 +2,10 @@
 
 All notable changes to the "web-cat-vscode" extension will be documented in this file.
 
+## [2.4.0] - 2022-03-29
+
+- Assignments are now re-fetched for the latest update on submit.
+
 ## [2.3.1] - 2022-02-18
 
 - Fixed bug where `.gdoc` files would interfere with submission
