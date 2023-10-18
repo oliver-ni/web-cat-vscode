@@ -1,5 +1,5 @@
 import * as archiver from "archiver";
-import * as parser from "fast-xml-parser";
+import { XMLParser } from "fast-xml-parser";
 import * as glob from "glob";
 import fetch from "node-fetch";
 import { parse as parseHTML } from "node-html-parser";
@@ -24,6 +24,8 @@ type AssignmentItem = {
   root: SubmissionRoot;
   provider: UploadDataProvider;
 };
+
+const parser = new XMLParser({ ignoreAttributes: false, isArray: (_, __, ___, isAttribute) => !isAttribute });
 
 const parseTransportParam = (value: any): TransportParam => {
   return {
@@ -60,6 +62,7 @@ const parseAssignmentGroup = (value: any): AssignmentGroup => {
 };
 
 const parseSubmissionRoot = (value: any): SubmissionRoot => {
+  console.log(value);
   return {
     excludes: value["submission-targets"][0]["exclude"].map(parseExclude),
     groups: value["submission-targets"][0]["assignment-group"].map(parseAssignmentGroup),
@@ -70,7 +73,7 @@ export class UploadDataProvider extends AsyncTreeDataProvider {
   private async fetchSite(url: string): Promise<SubmissionRoot> {
     const resp = await fetch(url);
     const content = await resp.text();
-    const xml = parser.parse(content, { ignoreAttributes: false, arrayMode: true });
+    const xml = parser.parse(content);
     return parseSubmissionRoot(xml);
   }
 

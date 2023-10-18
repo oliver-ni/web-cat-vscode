@@ -10,7 +10,7 @@
   },
   "icon": "assets/wc-logo.png",
   "engines": {
-    "vscode": "^1.42.0"
+    "vscode": "^1.83.0"
   },
   "categories": [
     "Other"
@@ -23,9 +23,7 @@
     "onCommand:web-CAT:refreshSnarferBrowser",
     "onCommand:web-CAT:snarfItem",
     "onCommand:web-CAT:refreshUploadBrowser",
-    "onCommand:web-CAT:uploadItem",
-    "onView:snarferBrowser",
-    "onView:uploadBrowser"
+    "onCommand:web-CAT:uploadItem"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -185,10 +183,10 @@
     "@types/mocha": "^7.0.1",
     "@types/node": "^12.11.7",
     "@types/stream-buffers": "^3.0.4",
-    "@types/vscode": "^1.42.0",
+    "@types/vscode": "^1.83.0",
     "glob": "^7.1.6",
     "mocha": "^10.2.0",
-    "typescript": "^3.7.5",
+    "typescript": "^5.2.2",
     "vscode-test": "^1.3.0"
   },
   "dependencies": {

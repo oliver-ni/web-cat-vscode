@@ -1,4 +1,4 @@
-import * as parser from "fast-xml-parser";
+import { XMLParser } from "fast-xml-parser";
 import * as fs from "fs";
 import fetch from "node-fetch";
 import * as path from "path";
@@ -14,6 +14,8 @@ type SnarfSitePackageItem = {
   description: string;
   entry: { "@_url": string };
 };
+
+const parser = new XMLParser({ ignoreAttributes: false });
 
 export class SnarfDataProvider extends AsyncTreeDataProvider {
   private makeItem(x: SnarfSitePackageItem): { category: string; item: AsyncItem } {
@@ -33,7 +35,7 @@ export class SnarfDataProvider extends AsyncTreeDataProvider {
     if (!resp.ok) throw new Error(`Failed to snarf ${url}. Check the URL and your internet connection.`);
 
     const content = await resp.text();
-    const xml = parser.parse(content, { ignoreAttributes: false });
+    const xml = parser.parse(content);
 
     return {
       label: xml.snarf_site["@_name"],
