@@ -105,7 +105,7 @@ export const snarfItem = (item: AsyncItem) => {
     }
 
     try {
-      await zip.extract({ path: unzipPath});
+      await zip.extract({ path: unzipPath });
     } catch (err) {
       // @ts-ignore
       window.showErrorMessage(`An error occurred: ${err?.message}`);
