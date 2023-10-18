@@ -104,7 +104,14 @@ export const snarfItem = (item: AsyncItem) => {
       if (ans !== "Yes") return;
     }
 
-    await zip.extract({ path: unzipPath, concurrency: 5 });
+    try {
+      await zip.extract({ path: unzipPath});
+    } catch (err) {
+      // @ts-ignore
+      window.showErrorMessage(`An error occurred: ${err?.message}`);
+      console.error(err);
+      return;
+    }
 
     try {
       await commands.executeCommand("java.project.import");
