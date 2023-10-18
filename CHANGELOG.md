@@ -2,6 +2,10 @@
 
 All notable changes to the "web-cat-vscode" extension will be documented in this file.
 
+## [2.4.1] - 2023-10-18
+
+- Fixed unzipping issue when snarfing into Google Drive
+
 ## [2.4.0] - 2022-03-29
 
 - Assignments are now re-fetched for the latest update on submit.
