@@ -2,7 +2,7 @@ import { XMLParser } from "fast-xml-parser";
 import * as fs from "fs";
 import fetch from "node-fetch";
 import * as path from "path";
-import * as unzip from "unzipper";
+import * as unzip from 'unzip-stream';
 import { commands, Uri, window, workspace } from "vscode";
 import { AsyncItem, AsyncTreeDataProvider } from "./asyncTree";
 import { delay, getConfig } from "./utils";
@@ -95,10 +95,7 @@ export const snarfItem = (item: AsyncItem) => {
   if (!dir) return window.showInformationMessage("Please open a folder first.");
 
   const downloadItem = async () => {
-    const resp = await fetch(pack.entry["@_url"]);
-    const zipfile = await resp.buffer();
-    const zip = await unzip.Open.buffer(zipfile);
-
+    let resp = await fetch(pack.entry["@_url"]);
     const unzipPath = path.join(dir, pack["@_name"]);
 
     if (fs.existsSync(unzipPath)) {
@@ -106,7 +103,7 @@ export const snarfItem = (item: AsyncItem) => {
       if (ans !== "Yes") return;
     }
 
-    await zip.extract({ path: unzipPath });
+    resp.body.pipe(unzip.Extract({ path: unzipPath }));
 
     try {
       await commands.executeCommand("java.project.import");
