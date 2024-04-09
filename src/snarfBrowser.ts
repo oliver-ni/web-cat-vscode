@@ -2,7 +2,7 @@ import { XMLParser } from "fast-xml-parser";
 import * as fs from "fs";
 import fetch from "node-fetch";
 import * as path from "path";
-import * as unzip from 'unzip-stream';
+import * as unzip from "unzip-stream";
 import { commands, Uri, window, workspace } from "vscode";
 import { AsyncItem, AsyncTreeDataProvider } from "./asyncTree";
 import { delay, getConfig } from "./utils";
@@ -88,38 +88,44 @@ export class SnarfDataProvider extends AsyncTreeDataProvider {
   }
 }
 
-export const snarfItem = (item: AsyncItem) => {
-  const pack = <SnarfSitePackageItem>item.item;
-
+const downloadItem = async (pack: SnarfSitePackageItem) => {
   const dir = workspace.workspaceFolders?.[0].uri.fsPath;
   if (!dir) return window.showInformationMessage("Please open a folder first.");
 
-  const downloadItem = async () => {
-    let resp = await fetch(pack.entry["@_url"]);
-    const unzipPath = path.join(dir, pack["@_name"]);
+  let resp = await fetch(pack.entry["@_url"]);
+  const unzipPath = path.join(dir, pack["@_name"]);
 
-    if (fs.existsSync(unzipPath)) {
-      const ans = await window.showInformationMessage("Directory already exists. Overwrite?", "Yes", "No");
-      if (ans !== "Yes") return;
-    }
+  if (fs.existsSync(unzipPath)) {
+    const ans = await window.showInformationMessage("Directory already exists. Overwrite?", "Yes", "No");
+    if (ans !== "Yes") return;
+  }
 
-    resp.body.pipe(unzip.Extract({ path: unzipPath }));
-
-    try {
-      await commands.executeCommand("java.project.import");
-    } catch (e) {}
-
-    const selection = await window.showInformationMessage(`Succesfully snarfed ${pack["@_name"]}.`, "Open Folder");
-
-    if (selection === "Open Folder") {
-      await commands.executeCommand("vscode.openFolder", Uri.file(unzipPath));
-    }
-  };
+  resp.body.pipe(unzip.Extract({ path: unzipPath }));
 
   try {
-    window.withProgress({ location: { viewId: "snarferBrowser" }, title: "Snarfing..." }, () =>
-      Promise.all([delay(1000), downloadItem()])
+    await commands.executeCommand("java.project.import");
+  } catch (e) {}
+
+  return unzipPath;
+};
+
+const showSuccessMessage = async (pack: SnarfSitePackageItem, unzipPath: string) => {
+  const selection = await window.showInformationMessage(`Succesfully snarfed ${pack["@_name"]}.`, "Open Folder");
+  if (selection === "Open Folder") {
+    await commands.executeCommand("vscode.openFolder", Uri.file(unzipPath));
+  }
+};
+
+export const snarfItem = async (item: AsyncItem) => {
+  const pack = <SnarfSitePackageItem>item.item;
+
+  try {
+    const [, unzipPath] = await window.withProgress(
+      { location: { viewId: "snarferBrowser" }, title: "Snarfing..." },
+      () => Promise.all([delay(1000), downloadItem(pack)])
     );
+    if (!unzipPath) return;
+    showSuccessMessage(pack, unzipPath);
   } catch (err) {
     // @ts-ignore
     window.showErrorMessage(`An error occurred: ${err?.message}`);
