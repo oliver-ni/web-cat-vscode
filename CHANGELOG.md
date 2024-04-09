@@ -2,6 +2,11 @@
 
 All notable changes to the "web-cat-vscode" extension will be documented in this file.
 
+## [2.5.0] - 2024-04-09
+
+- Fixed corruption while unzipping certain zip files
+- Fixed bug where progress bar would stay until notification was closed
+
 ## [2.4.1] - 2023-10-18
 
 - Fixed unzipping issue when snarfing into Google Drive
